@@ -163,6 +163,7 @@ def train():
     y_train_t = torch.tensor(y_train, dtype=torch.long)
     y_test_t  = torch.tensor(y_test,  dtype=torch.long)
 
+    # If number of channels changes and N_CHANNELS isn't updated and error will form
     encoder = EMGEncoder()
     model   = Centroid(DIMENSIONS, N_CLASSES)
 
@@ -209,8 +210,8 @@ class HDCInferencer:
 
     _label_map = {v: k for k, v in GESTURES.items()}
 
-    def __init__(self, checkpoint: str = CHECKPOINT):
-        ckpt = torch.load(checkpoint, weights_only=True)
+    def __init__(self):
+        ckpt = torch.load(CHECKPOINT, weights_only=True)
 
         self.norm = ChannelNorm().load_state_dict(ckpt["norm"])
 
@@ -223,10 +224,11 @@ class HDCInferencer:
 
         self.buffer: list = []
 
-    def push_sample(self, sample: list) -> Optional[str]:
+    def push_sample(self, sample: list) -> Optional[tuple[str, float]]:
         """
         Feed one raw EMG sample (list of N_CHANNELS floats).
-        Returns the predicted gesture name when a full window is ready, else None.
+        Returns (gesture_name, confidence) when a full window is ready, else None.
+        Confidence is the cosine similarity of the winning class in [-1, 1].
         """
         self.buffer.append(sample)
         if len(self.buffer) < WINDOW_SIZE:
@@ -238,11 +240,12 @@ class HDCInferencer:
 
         x = torch.tensor(feats, dtype=torch.float32)
         with torch.no_grad():
-            sims = self.model(self.encoder(x))    # [1, N_CLASSES]
-            pred = sims.argmax(dim=-1).item()
+            sims       = self.model(self.encoder(x))   # [1, N_CLASSES]
+            pred       = sims.argmax(dim=-1).item()
+            confidence = sims[0, pred].item()
 
-        self.buffer = self.buffer[STRIDE:]        # slide window forward
-        return self._label_map[pred]
+        self.buffer = self.buffer[STRIDE:]
+        return self._label_map[pred], confidence
 
 
 # ---------------------------------------------------------------------------
