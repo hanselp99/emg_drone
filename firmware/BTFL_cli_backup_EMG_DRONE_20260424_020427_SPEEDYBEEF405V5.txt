@@ -1,0 +1,62 @@
+defaults nosave
+
+
+# version
+# Betaflight / STM32F405 (S405) 4.5.2 Nov 15 2025 / 20:56:25 (024f8e13d) MSP API: 1.46
+# config rev: ead07f2
+
+# start the command batch
+batch start
+
+# reset configuration to default settings
+defaults nosave
+
+board_name SPEEDYBEEF405V5
+manufacturer_id SPBE
+mcu_id 004c003d3234511932313431
+signature 
+
+# name: EMG_Drone
+
+# feature
+feature TELEMETRY
+feature LED_STRIP
+feature OSD
+
+# serial
+serial 1 64 115200 57600 0 115200
+serial 2 131073 115200 57600 0 115200
+serial 3 0 115200 57600 0 115200
+serial 4 0 115200 57600 0 115200
+serial 5 0 115200 57600 0 115200
+
+# master
+set acc_calibration = -4,60,2,1
+set motor_pwm_protocol = DSHOT300
+set small_angle = 100
+set gps_rescue_allow_arming_without_fix = ON
+set craft_name = EMG_Drone
+
+profile 0
+
+profile 1
+
+profile 2
+
+profile 3
+
+# restore original profile selection
+profile 0
+
+rateprofile 0
+
+rateprofile 1
+
+rateprofile 2
+
+rateprofile 3
+
+# restore original rateprofile selection
+rateprofile 0
+
+# save configuration

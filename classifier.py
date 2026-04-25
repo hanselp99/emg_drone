@@ -19,8 +19,8 @@ from sklearn.model_selection import train_test_split
 # Config
 # ---------------------------------------------------------------------------
 DIMENSIONS  = 10000  # HD vector dimensionality (higher = more accurate, slower)
-WINDOW_SIZE = 256    # raw samples per classification window (~128ms at 2000 Hz)
-STRIDE      = 128    # window hop — 50% overlap gives one decision per ~64ms
+WINDOW_SIZE = 128    # raw samples per classification window (~128ms at 2000 Hz)
+STRIDE      = 64    # window hop — 50% overlap gives one decision per ~64ms
 N_CHANNELS  = 4
 
 GESTURES = {
@@ -163,8 +163,7 @@ def train():
     y_train_t = torch.tensor(y_train, dtype=torch.long)
     y_test_t  = torch.tensor(y_test,  dtype=torch.long)
 
-    # If number of channels changes and N_CHANNELS isn't updated and error will form
-    encoder = EMGEncoder()
+    encoder = EMGEncoder(n_features=X.shape[1])
     model   = Centroid(DIMENSIONS, N_CLASSES)
 
     # Single-pass training: accumulate class prototypes
@@ -184,7 +183,7 @@ def train():
         "model":     model.state_dict(),
         "norm":      norm.state_dict(),
         "dimensions": DIMENSIONS,
-        "n_features": N_FEATURES,
+        "n_features": X.shape[1],
     }, CHECKPOINT)
     print(f"Saved → {CHECKPOINT}")
 

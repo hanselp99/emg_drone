@@ -18,9 +18,11 @@ def collect_calibration_data(inlet, gesture_name, target_samples=1000):
         time.sleep(1)
     
     print("\n>>> RECORDING... HOLD POSITION! <<<")
-    
+
+    inlet.flush()  # discard samples buffered during the countdown
     data = []
-    
+    print('Check')
+
     while len(data) < target_samples:
         # pull_sample() returns [values], timestamp
         sample, timestamp = inlet.pull_sample()
@@ -30,6 +32,8 @@ def collect_calibration_data(inlet, gesture_name, target_samples=1000):
             # Simple progress tracker
             if len(data) % 100 == 0:
                 print(f"Progress: {len(data)}/{target_samples}", end='\r')
+
+    print('Test')
 
     # Convert the list of lists into a clean DataFrame
     # Mindrove typically provides 8 EMG channels
@@ -66,7 +70,7 @@ def main():
 
     try:
         for g in gestures:
-            collect_calibration_data(inlet, g, target_samples=10000)
+            collect_calibration_data(inlet, g, target_samples=2000)
             
         print("\nAll calibration files are ready for model training.")
         
